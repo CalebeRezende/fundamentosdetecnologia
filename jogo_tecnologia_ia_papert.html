@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Jogo de Fundamentos</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 40px; }
+    .botao { padding: 10px 20px; font-size: 18px; margin: 10px; cursor: pointer; }
+    #resultado { font-size: 30px; margin-top: 30px; color: green; }
+    #cronometro { font-size: 20px; margin-top: 10px; color: red; }
+    #asteriscos { position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 999; font-size: 30px; color: gold; display: none; }
+    .asterisco { position: absolute; animation: cair 2s linear infinite; }
+    @keyframes cair { from { transform: translateY(-100px); opacity: 1; }
+      to { transform: translateY(100vh); opacity: 0; } }
+  </style>
+</head>
+<body>
+  <h1>Jogo Verdadeiro ou Falso: Fundamentos</h1>
+  <button class="botao" onclick="iniciarJogo()" id="botaoComecar">Começar a jogada</button>
+  <div id="pergunta" style="display:none;"></div>
+  <div id="cronometro"></div>
+  <button class="botao" onclick="responder('V')" style="display:none;" id="botaoV">V</button>
+  <button class="botao" onclick="responder('F')" style="display:none;" id="botaoF">F</button>
+  <div id="resultado"></div>
+  <button id="recomecar" class="botao" onclick="iniciarJogo()" style="display:none;">Começar outra vez</button>
+  <div id="asteriscos"></div>
+<script>
+const perguntasOriginais = [{"pergunta": "O hardware é a parte física de um sistema de computação.", "resposta": "V"}, {"pergunta": "O software é responsável por realizar funções físicas em um computador.", "resposta": "F"}, {"pergunta": "Um sistema operacional gerencia recursos de hardware e software.", "resposta": "V"}, {"pergunta": "Os dispositivos de entrada incluem teclado e mouse.", "resposta": "V"}, {"pergunta": "Dispositivos de saída incluem a memória RAM.", "resposta": "F"}, {"pergunta": "A CPU é considerada o 'cérebro' do computador.", "resposta": "V"}, {"pergunta": "A memória ROM é volátil e perde dados ao desligar o computador.", "resposta": "F"}, {"pergunta": "HD e SSD são exemplos de armazenamento permanente.", "resposta": "V"}, {"pergunta": "O backup serve para armazenar arquivos temporários.", "resposta": "F"}, {"pergunta": "A computação em nuvem permite acessar dados via internet.", "resposta": "V"}, {"pergunta": "O Excel é um exemplo de software de planilha eletrônica.", "resposta": "V"}, {"pergunta": "HTML é uma linguagem de programação usada para criar sites.", "resposta": "F"}, {"pergunta": "O navegador de internet é um tipo de software de sistema.", "resposta": "F"}, {"pergunta": "Wi-Fi é uma forma de conexão sem fio à internet.", "resposta": "V"}, {"pergunta": "A internet surgiu na década de 1990.", "resposta": "F"}, {"pergunta": "Firewall é um mecanismo de segurança de rede.", "resposta": "V"}, {"pergunta": "Antivírus serve apenas para remover arquivos duplicados.", "resposta": "F"}, {"pergunta": "Softwares livres podem ser usados, estudados e modificados livremente.", "resposta": "V"}, {"pergunta": "Um algoritmo é uma sequência de passos para resolver um problema.", "resposta": "V"}, {"pergunta": "Um bug é um erro em um programa de computador.", "resposta": "V"}, {"pergunta": "A linguagem Python é usada apenas para criação de jogos.", "resposta": "F"}, {"pergunta": "Programar é ensinar o computador a executar tarefas.", "resposta": "V"}, {"pergunta": "Um byte é maior que um megabyte.", "resposta": "F"}, {"pergunta": "TI significa Tecnologia da Informação.", "resposta": "V"}, {"pergunta": "Uma URL é o endereço de uma página na internet.", "resposta": "V"}, {"pergunta": "Bluetooth é uma tecnologia para transferir arquivos por cabo.", "resposta": "F"}, {"pergunta": "Linux é um sistema operacional.", "resposta": "V"}, {"pergunta": "O termo 'upload' significa baixar arquivos da internet.", "resposta": "F"}, {"pergunta": "Um banco de dados armazena e organiza informações.", "resposta": "V"}, {"pergunta": "O Google é um exemplo de motor de busca.", "resposta": "V"}, {"pergunta": "Código-fonte é o resultado final de um programa compilado.", "resposta": "F"}, {"pergunta": "Computadores entendem linguagem de máquina.", "resposta": "V"}, {"pergunta": "Placa-mãe conecta todos os componentes do computador.", "resposta": "V"}, {"pergunta": "Energia elétrica não é necessária para o funcionamento do computador.", "resposta": "F"}, {"pergunta": "IA significa Inteligência Artificial.", "resposta": "V"}, {"pergunta": "Machine Learning é uma área da IA que permite que máquinas aprendam com dados.", "resposta": "V"}, {"pergunta": "Redes neurais são inspiradas no cérebro humano.", "resposta": "V"}, {"pergunta": "Um chatbot é um exemplo de uso de IA.", "resposta": "V"}, {"pergunta": "IA forte já é comum em nosso dia a dia.", "resposta": "F"}, {"pergunta": "Aprendizado supervisionado requer dados com respostas conhecidas.", "resposta": "V"}, {"pergunta": "A IA não pode ser usada na educação.", "resposta": "F"}, {"pergunta": "Reconhecimento facial é uma aplicação de IA.", "resposta": "V"}, {"pergunta": "Deep Learning usa redes neurais profundas.", "resposta": "V"}, {"pergunta": "IA é uma tecnologia recente, surgida após 2020.", "resposta": "F"}, {"pergunta": "A ética é um tema importante no uso de IA.", "resposta": "V"}, {"pergunta": "Algoritmos de IA funcionam sem nenhum dado de entrada.", "resposta": "F"}, {"pergunta": "IA pode ser usada para prever comportamentos de consumidores.", "resposta": "V"}, {"pergunta": "Sistemas especialistas são uma forma antiga de IA.", "resposta": "V"}, {"pergunta": "Todo sistema que usa tecnologia é considerado IA.", "resposta": "F"}, {"pergunta": "Veículos autônomos usam inteligência artificial para navegar.", "resposta": "V"}, {"pergunta": "ChatGPT é um exemplo de modelo de linguagem baseado em IA.", "resposta": "V"}, {"pergunta": "IA só pode ser usada em computadores superpotentes.", "resposta": "F"}, {"pergunta": "A IA pode ajudar na detecção de doenças.", "resposta": "V"}, {"pergunta": "Aprendizado por reforço é quando a IA aprende por tentativa e erro.", "resposta": "V"}, {"pergunta": "Todo programa de computador tem inteligência artificial.", "resposta": "F"}, {"pergunta": "IA pode ser usada para gerar imagens e músicas.", "resposta": "V"}, {"pergunta": "A IA nunca comete erros.", "resposta": "F"}, {"pergunta": "Processamento de linguagem natural permite que máquinas entendam texto.", "resposta": "V"}, {"pergunta": "IA pode personalizar o ensino para cada aluno.", "resposta": "V"}, {"pergunta": "Big Data está relacionado ao uso de grandes volumes de dados.", "resposta": "V"}, {"pergunta": "IA sempre substitui o professor.", "resposta": "F"}, {"pergunta": "Visão computacional permite que máquinas interpretem imagens.", "resposta": "V"}, {"pergunta": "A IA pode ajudar na acessibilidade de pessoas com deficiência.", "resposta": "V"}, {"pergunta": "IA e robótica são áreas totalmente independentes.", "resposta": "F"}, {"pergunta": "IA pode ser aplicada na agricultura.", "resposta": "V"}, {"pergunta": "IA depende de programação e dados.", "resposta": "V"}, {"pergunta": "A inteligência artificial funciona como mágica, sem explicações lógicas.", "resposta": "F"}, {"pergunta": "Seymour Papert foi o criador da linguagem de programação Logo.", "resposta": "V"}, {"pergunta": "Papert defendia o uso do computador como ferramenta de pensamento.", "resposta": "V"}, {"pergunta": "Papert acreditava que o erro deveria ser evitado a qualquer custo.", "resposta": "F"}, {"pergunta": "Construcionismo é a teoria pedagógica desenvolvida por Papert.", "resposta": "V"}, {"pergunta": "A Máquina das Crianças é um livro de Paulo Freire.", "resposta": "F"}, {"pergunta": "Segundo Papert, aprender fazendo é mais eficaz do que aprender escutando.", "resposta": "V"}, {"pergunta": "Papert foi influenciado por Piaget.", "resposta": "V"}, {"pergunta": "Papert achava que todos deveriam aprender a programar para virar programador.", "resposta": "F"}, {"pergunta": "No construcionismo, o conhecimento é construído ativamente pelo aluno.", "resposta": "V"}, {"pergunta": "Papert defendia o uso passivo da tecnologia na educação.", "resposta": "F"}, {"pergunta": "A linguagem Logo foi criada para ensinar crianças a pensar.", "resposta": "V"}, {"pergunta": "Papert acreditava em uma aprendizagem personalizada e criativa.", "resposta": "V"}, {"pergunta": "Papert via o computador como 'máquina de ensinar'.", "resposta": "F"}, {"pergunta": "Papert criticava o ensino tradicional por ser transmissivo.", "resposta": "V"}, {"pergunta": "O uso da tartaruga no Logo ajuda na visualização do raciocínio.", "resposta": "V"}, {"pergunta": "Papert era contra o uso de robótica na educação.", "resposta": "F"}, {"pergunta": "A construção concreta de objetos pode apoiar o pensamento abstrato.", "resposta": "V"}, {"pergunta": "Papert acreditava que o computador poderia empoderar o aluno.", "resposta": "V"}, {"pergunta": "Papert criou o termo 'cultura maker'.", "resposta": "F"}, {"pergunta": "A aprendizagem significativa está alinhada ao construcionismo.", "resposta": "V"}, {"pergunta": "Papert defendia o papel ativo do aluno no processo de aprendizagem.", "resposta": "V"}, {"pergunta": "Segundo Papert, o computador deve adaptar-se à mente do aluno.", "resposta": "V"}, {"pergunta": "Papert não via relação entre brincar e aprender.", "resposta": "F"}, {"pergunta": "A ideia de aprender programando é central na obra de Papert.", "resposta": "V"}, {"pergunta": "Papert defendia uma escola centrada no professor.", "resposta": "F"}, {"pergunta": "Papert via o computador como ferramenta de expressão.", "resposta": "V"}, {"pergunta": "Papert acreditava que o erro é parte essencial do processo de aprendizagem.", "resposta": "V"}, {"pergunta": "Papert achava que todos aprendem da mesma maneira.", "resposta": "F"}, {"pergunta": "A linguagem Logo incentiva a experimentação e o raciocínio lógico.", "resposta": "V"}, {"pergunta": "Papert promoveu a ideia de 'aprender com a máquina'.", "resposta": "V"}, {"pergunta": "O pensamento computacional é indiferente ao trabalho de Papert.", "resposta": "F"}, {"pergunta": "Papert incentivava o uso criativo das tecnologias digitais.", "resposta": "V"}, {"pergunta": "Papert foi um educador do século XXI.", "resposta": "F"}];
+let perguntas = [], indice = 0, erros = 0, acertos = 0, tempoRestante = 10, cronometroInterval;
+
+function embaralhar(array) { return array.sort(() => Math.random() - 0.5); }
+function iniciarJogo() {
+  perguntas = embaralhar([...perguntasOriginais]).slice(0, 5);
+  indice = erros = acertos = 0;
+  document.getElementById('resultado').innerText = '';
+  document.getElementById('recomecar').style.display = 'none';
+  document.getElementById('asteriscos').style.display = 'none';
+  document.getElementById('asteriscos').innerHTML = '';
+  document.getElementById('botaoComecar').style.display = 'none';
+  document.getElementById('pergunta').style.display = 'block';
+  document.getElementById('botaoV').style.display = 'inline-block';
+  document.getElementById('botaoF').style.display = 'inline-block';
+  mostrarPergunta();
+}
+function mostrarPergunta() {
+  clearInterval(cronometroInterval);
+  if (indice < perguntas.length) {
+    document.getElementById('pergunta').innerText = perguntas[indice].pergunta;
+    tempoRestante = 10;
+    document.getElementById('cronometro').innerText = `Tempo restante: ${tempoRestante}s`;
+    cronometroInterval = setInterval(() => {
+      tempoRestante--;
+      document.getElementById('cronometro').innerText = `Tempo restante: ${tempoRestante}s`;
+      if (tempoRestante === 0) { clearInterval(cronometroInterval); erros++; indice++; mostrarPergunta(); }
+    }, 1000);
+  } else {
+    document.getElementById('pergunta').style.display = 'none';
+    document.getElementById('botaoV').style.display = 'none';
+    document.getElementById('botaoF').style.display = 'none';
+    document.getElementById('cronometro').innerText = '';
+    if (erros === 0) { document.getElementById('resultado').innerText = "🎉 Parabéns! Você acertou todas!"; chuvaDeAsteriscos(); }
+    else { document.getElementById('resultado').innerText = "Que pena! Você errou " + erros + " pergunta(s)."; }
+    document.getElementById('recomecar').style.display = 'inline-block';
+  }
+}
+function responder(resposta) {
+  if (indice >= perguntas.length) return;
+  clearInterval(cronometroInterval);
+  if (resposta === perguntas[indice].resposta) acertos++;
+  else erros++;
+  indice++;
+  mostrarPergunta();
+}
+function chuvaDeAsteriscos() {
+  const container = document.getElementById('asteriscos');
+  container.style.display = 'block';
+  for (let i = 0; i < 100; i++) {
+    const estrela = document.createElement('div');
+    estrela.classList.add('asterisco');
+    estrela.innerText = '*';
+    estrela.style.left = Math.random() * 100 + 'vw';
+    estrela.style.animationDuration = (Math.random() * 2 + 1) + 's';
+    estrela.style.fontSize = (Math.random() * 30 + 20) + 'px';
+    container.appendChild(estrela);
+  }
+}
+</script>
+</body>
+</html>
